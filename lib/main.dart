@@ -1,7 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:recipe_explorer_pro/provider/recipe_provider.dart';
+import 'package:recipe_explorer_pro/provider/theme_provider.dart';
 import 'package:recipe_explorer_pro/screens/auth_screen.dart';
 
 import 'firebase_options.dart';
@@ -13,10 +15,14 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await Hive.initFlutter();
+  // Hive.registerAdapter(RecipeAdapter());
+  await Hive.openBox('favorites');
+  await Hive.openBox('settings');
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => AuthProvider()),
     ChangeNotifierProvider(create: (_) => RecipeProvider()),
-    // ChangeNotifierProvider(create: (_) => ThemeProvider()),
+    ChangeNotifierProvider(create: (_) => ThemeProvider()),
   ], child: const MyApp()));
 }
 
@@ -25,20 +31,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Recipe Explorer Pro',
-      debugShowCheckedModeBanner: false,
-      home: Consumer<AuthProvider>(
-        builder: (context, authProvider, _) {
-          return authProvider.isAuthenticated ? const HomeScreen() : const AuthScreen();
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return MaterialApp(
+        title: 'Recipe Explorer Pro',
+        debugShowCheckedModeBanner: false,
+        theme: themeProvider.currentTheme,
+        home: Consumer<AuthProvider>(
+          builder: (context, authProvider, _) {
+            return authProvider.isAuthenticated ? const HomeScreen() : const AuthScreen();
+          },
+        ),
+        routes: {
+          '/login': (context) => const AuthScreen(),
+          '/home': (context) => const HomeScreen(),
+          // '/add-recipe': (context) => const AddRecipeScreen(),
         },
-      ),
-      routes: {
-        '/login': (context) => const AuthScreen(),
-        '/home': (context) => const HomeScreen(),
-        // '/add-recipe': (context) => const AddRecipeScreen(),
-      },
-    );
+      );
+    });
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:recipe_explorer_pro/provider/theme_provider.dart';
 
 import '../../provider/auth_provider.dart';
 import '../../provider/recipe_provider.dart';
@@ -17,18 +18,29 @@ class _HomeScreenState extends State<HomeScreen> {
     await context.read<AuthProvider>().signOut();
   }
 
+  _toggleTheme() async {
+    await context.read<ThemeProvider>().toggleTheme();
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        leading: const Icon(Icons.person),
-        title: const Text('Recipe Explorer Pro'),
+        backgroundColor: Colors.transparent,
+        leading: Icon(
+          Icons.person,
+        ),
+        title: Text(
+          'Recipe Explorer Pro',
+          style: Theme.of(context).textTheme.labelLarge!.copyWith(color: context.read<ThemeProvider>().isDarkMode ? Colors.white : Colors.black),
+        ),
         actions: [
           GestureDetector(
             onTap: _logout,
-            child: const Icon(Icons.logout),
+            child: Icon(Icons.logout),
           )
         ],
       ),
@@ -38,25 +50,37 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Hello ${authProvider.currentUser?.email ?? ""}",
-              textAlign: TextAlign.left,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Hello ${authProvider.currentUser?.email ?? ""}",
+                  textAlign: TextAlign.left,
+                ),
+                GestureDetector(
+                  onTap: _toggleTheme,
+                  child: Text("Toggle Theme"),
+                ),
+              ],
             ),
             const SizedBox(
               height: 20,
             ),
             RichText(
-              text: const TextSpan(
+              text: TextSpan(
                 text: "Make your own food,",
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.black),
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: context.read<ThemeProvider>().isDarkMode ? Colors.white : Colors.black),
                 children: [
                   TextSpan(
                     text: "\nStay at ",
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.black),
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: context.read<ThemeProvider>().isDarkMode ? Colors.white : Colors.black),
                   ),
                   TextSpan(text: "home", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.orange))
                 ],
               ),
+            ),
+            SizedBox(
+              height: 20,
             ),
             SizedBox(
               height: 60,

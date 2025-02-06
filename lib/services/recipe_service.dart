@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 
@@ -115,12 +114,28 @@ class RecipeService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        log(data.toString());
+
         return (data['categories'] as List<dynamic>);
       }
       return [];
     } catch (e) {
-      log(e.toString());
+      return [];
+    }
+  }
+
+  Future<List<dynamic>> getMeals() async {
+    try {
+      final response = await http.get(
+        Uri.parse("https://www.themealdb.com/api/json/v1/1/search.php?s="),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        return (data['categories'] as List<dynamic>);
+      }
+      return [];
+    } catch (e) {
       return [];
     }
   }
