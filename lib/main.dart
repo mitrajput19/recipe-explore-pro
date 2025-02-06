@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:recipe_explorer_pro/provider/recipe_provider.dart';
 import 'package:recipe_explorer_pro/provider/theme_provider.dart';
 import 'package:recipe_explorer_pro/screens/auth_screen.dart';
+import 'package:recipe_explorer_pro/services/notification_service.dart';
 
 import 'firebase_options.dart';
 import 'provider/auth_provider.dart';
@@ -15,8 +16,9 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await NotificationService.initialize();
   await Hive.initFlutter();
-  // Hive.registerAdapter(RecipeAdapter());
+  await Hive.openBox('mealsCache');
   await Hive.openBox('favorites');
   await Hive.openBox('settings');
   runApp(MultiProvider(providers: [

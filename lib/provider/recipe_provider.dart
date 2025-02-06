@@ -28,9 +28,9 @@ class RecipeProvider with ChangeNotifier {
     }
   }
 
-  Future<void> loadMeals({String? category}) async {
+  Future<void> loadMeals({String? category,String? search}) async {
     try {
-      var response = (await _recipeService.getMeals(category: category)).map((e) => MealModel.fromJson(e)).toList();
+      var response = (await _recipeService.getMeals(category: category,search: search)).map((e) => MealModel.fromJson(e)).toList();
       setMeal(response);
     } catch (e) {
       rethrow;

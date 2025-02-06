@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -11,6 +13,7 @@ class AuthService {
           email: email,
           password: password
       );
+
       return result.user;
     } catch (e) {
       rethrow;

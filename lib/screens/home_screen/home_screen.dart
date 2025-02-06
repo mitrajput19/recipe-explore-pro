@@ -26,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   String? category;
+  String? search;
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +89,22 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(
                 height: 20,
               ),
+              Container(
+                child: TextFormField(
+                  onChanged: (val){
+                    setState(() {
+                      search = val;
+                      if(val==""){
+                        search=null;
+                      }
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Search..."
+                  ),
+                ),
+              ),
+              SizedBox(height: 20,),
               SizedBox(
                 height: 60,
                 child: FutureBuilder(
@@ -127,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // const RecipeSearchBar(),
               FutureBuilder(
-                future: recipeProvider.loadMeals(category: category),
+                future: recipeProvider.loadMeals(category: category,search: search),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
