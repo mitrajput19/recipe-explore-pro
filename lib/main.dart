@@ -35,17 +35,20 @@ class MyApp extends StatelessWidget {
       return MaterialApp(
         title: 'Recipe Explorer Pro',
         debugShowCheckedModeBanner: false,
-        theme: themeProvider.currentTheme,
+        themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+        theme: ThemeData.light(),
+        darkTheme: ThemeData.dark(),
         home: Consumer<AuthProvider>(
           builder: (context, authProvider, _) {
             return authProvider.isAuthenticated ? const HomeScreen() : const AuthScreen();
           },
         ),
-        routes: {
-          '/login': (context) => const AuthScreen(),
-          '/home': (context) => const HomeScreen(),
-          // '/add-recipe': (context) => const AddRecipeScreen(),
-        },
+        // routes: {
+        //   '/login': (context) => const AuthScreen(),
+        //   '/home': (context) => const HomeScreen(),
+        //   '/recipe-details': (context) => const RecipeDetailScreen()
+        //   // '/add-recipe': (context) => const AddRecipeScreen(),
+        // },
       );
     });
   }

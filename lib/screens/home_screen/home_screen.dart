@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -5,6 +7,7 @@ import 'package:recipe_explorer_pro/provider/theme_provider.dart';
 
 import '../../provider/auth_provider.dart';
 import '../../provider/recipe_provider.dart';
+import '../recipe_detail_screen/recipe_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,6 +24,8 @@ class _HomeScreenState extends State<HomeScreen> {
   _toggleTheme() async {
     await context.read<ThemeProvider>().toggleTheme();
   }
+
+  String? category;
 
   @override
   Widget build(BuildContext context) {
@@ -46,106 +51,166 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Hello ${authProvider.currentUser?.email ?? ""}",
-                  textAlign: TextAlign.left,
-                ),
-                GestureDetector(
-                  onTap: _toggleTheme,
-                  child: const Text("Toggle Theme"),
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            RichText(
-              text: TextSpan(
-                text: "Make your own food,",
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: context.read<ThemeProvider>().isDarkMode ? Colors.white : Colors.black),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  TextSpan(
-                    text: "\nStay at ",
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: context.read<ThemeProvider>().isDarkMode ? Colors.white : Colors.black),
+                  Text(
+                    "Hello ${authProvider.currentUser?.email ?? ""}",
+                    textAlign: TextAlign.left,
                   ),
-                  const TextSpan(text: "home", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.orange))
+                  GestureDetector(
+                    onTap: _toggleTheme,
+                    child: const Text("Toggle Theme"),
+                  ),
                 ],
               ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            SizedBox(
-              height: 60,
-              child: FutureBuilder(
-                future: recipeProvider.loadCategories(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    itemCount: (recipeProvider.categories ?? []).length,
-                    itemBuilder: (context, index) {
-                      final category = recipeProvider.categories?[index];
-                      return Column(
-                        children: [
-                          CachedNetworkImage(
-                            height: 40,
-                            fit: BoxFit.fitHeight,
-                            imageUrl: category?.strCategoryThumb ?? "",
-                          ),
-                          Text(category?.strCategory ?? "")
-                        ],
-                      );
-                    },
-                  );
-                },
+              const SizedBox(
+                height: 20,
               ),
-            ),
+              RichText(
+                text: TextSpan(
+                  text: "Make your own food,",
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: context.read<ThemeProvider>().isDarkMode ? Colors.white : Colors.black),
+                  children: [
+                    TextSpan(
+                      text: "\nStay at ",
+                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: context.read<ThemeProvider>().isDarkMode ? Colors.white : Colors.black),
+                    ),
+                    const TextSpan(text: "home", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.orange))
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              SizedBox(
+                height: 60,
+                child: FutureBuilder(
+                  future: recipeProvider.loadCategories(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: (recipeProvider.categories ?? []).length,
+                      itemBuilder: (context, index) {
+                        final category = recipeProvider.categories?[index];
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              this.category = category?.strCategory;
+                            });
+                          },
+                          child: Column(
+                            children: [
+                              CachedNetworkImage(
+                                height: 40,
+                                fit: BoxFit.fitHeight,
+                                imageUrl: category?.strCategoryThumb ?? "",
+                              ),
+                              Text(category?.strCategory ?? "")
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
 
-            // const RecipeSearchBar(),
-            Expanded(
-              child: FutureBuilder(
-                future: recipeProvider.loadMeals(),
+              // const RecipeSearchBar(),
+              FutureBuilder(
+                future: recipeProvider.loadMeals(category: category),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
                   return ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: (recipeProvider.meals ?? []).length,
                     itemBuilder: (ctx, i) {
                       final recipe = recipeProvider.meals?[i];
                       return GestureDetector(
-                        onTap: () {},
-                        child: Column(
-                          children: [
-                            CachedNetworkImage(
-                              imageUrl: recipe?.strMealThumb ?? "",
-                              fit: BoxFit.contain,
+                        onTap: () {
+                          log(recipe!.toJson().toString());
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RecipeDetailScreen(recipe: recipe),
                             ),
-                            Text(
-                              recipe?.strMeal ?? "",
-                              style: Theme.of(context).textTheme.labelLarge!.copyWith(fontSize: 18, fontWeight: FontWeight.w700),
-                            )
-                          ],
+                          );
+                        },
+                        child: Card(
+                          elevation: 4,
+                          color: Colors.white,
+                          surfaceTintColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Recipe Image
+                              ClipRRect(
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                                child: CachedNetworkImage(
+                                  height: 180,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                  imageUrl: recipe?.strMealThumb ?? "",
+                                ),
+                              ),
+
+                              Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      recipe?.strMeal ?? "",
+                                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      recipe?.strCategory ?? category ?? "",
+                                      style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    const Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        // TextButton.icon(
+                                        //   onPressed: () {
+                                        //     // favoriteProvider.toggleFavorite(recipe);
+                                        //   },
+                                        //   icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border, color: Colors.red),
+                                        //   label: const Text("Favorite"),
+                                        // ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
+                      ;
                     },
                   );
                 },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(

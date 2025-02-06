@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -12,42 +13,65 @@ class RecipeDetailScreen extends StatefulWidget {
 }
 
 class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
-  late YoutubePlayerController _controller;
+  YoutubePlayerController? _controller;
 
   @override
   void initState() {
     super.initState();
-    final recipe = ModalRoute.of(context)!.settings.arguments as MealModel;
-    if (recipe.strYoutube != null) {
+    // final recipe = ModalRoute.of(context)!.settings.arguments as MealModel;
+    // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+
+    if (widget.recipe?.strYoutube != null) {
       _controller = YoutubePlayerController(
-        initialVideoId: YoutubePlayer.convertUrlToId(recipe.strYoutube!) ?? '',
+        initialVideoId: YoutubePlayer.convertUrlToId(widget.recipe?.strYoutube ?? "") ?? '',
         flags: const YoutubePlayerFlags(autoPlay: false),
       );
     }
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
-    final recipe = ModalRoute.of(context)!.settings.arguments as MealModel;
+    // final recipe = ModalRoute.of(context)!.settings.arguments as MealModel;
 
     return Scaffold(
-      appBar: AppBar(title: Text(recipe.strMeal ?? "")),
+      extendBody: true,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(backgroundColor: Colors.transparent, title: Text(widget.recipe?.strMeal ?? "")),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            if (recipe.strYoutube != null) YoutubePlayer(controller: _controller),
+            CachedNetworkImage(imageUrl: widget.recipe?.strMealThumb ?? ""),
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Cooking Time: ${recipe.measures.toList()} mins'),
+                  Text(
+                    ' ${widget.recipe?.strMeal ?? ""} ',
+                    style: Theme.of(context).textTheme.labelLarge!.copyWith(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 16),
                   const Text('Ingredients:', style: TextStyle(fontWeight: FontWeight.bold)),
-                  ...recipe.ingredients.map((i) => Text('• $i')),
+                  ...(widget.recipe?.ingredients ?? []).map((i) {
+                    if (i == null) {
+                      return SizedBox.shrink();
+                    }
+                    return Text('• ${i ?? ""}');
+                  }),
                   const SizedBox(height: 16),
                   const Text('Instructions:', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text(recipe.strInstructions ?? ""),
+                  Text(widget.recipe?.strInstructions ?? ""),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  if (_controller != null) ...[
+                    Text(
+                      "Youtube Video: ",
+                      style: Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    YoutubePlayer(controller: _controller!)
+                  ],
                 ],
               ),
             ),
