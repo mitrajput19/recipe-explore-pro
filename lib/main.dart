@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:recipe_explorer_pro/provider/recipe_provider.dart';
 import 'package:recipe_explorer_pro/screens/auth_screen.dart';
 
 import 'firebase_options.dart';
@@ -12,13 +13,11 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        // ChangeNotifierProvider(create: (_) => RecipeProvider()),
-        // ChangeNotifierProvider(create: (_) => ThemeProvider()),
-      ],
-      child: const MyApp()));
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (_) => AuthProvider()),
+    ChangeNotifierProvider(create: (_) => RecipeProvider()),
+    // ChangeNotifierProvider(create: (_) => ThemeProvider()),
+  ], child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -31,9 +30,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: Consumer<AuthProvider>(
         builder: (context, authProvider, _) {
-          return authProvider.isAuthenticated
-              ? const HomeScreen()
-              : const AuthScreen();
+          return authProvider.isAuthenticated ? const HomeScreen() : const AuthScreen();
         },
       ),
       routes: {

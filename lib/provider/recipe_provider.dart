@@ -1,30 +1,35 @@
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
+import 'package:recipe_explorer_pro/models/category_model.dart';
+
 import '../services/recipe_service.dart';
 
 class RecipeProvider with ChangeNotifier {
   final RecipeService _recipeService = RecipeService();
-  final Box _favoritesBox = Hive.box('favorites');
+  // final Box _favoritesBox = Hive.box('favorites');
 
   // List<Recipe> _recipes = [];
   // List<Recipe> _filteredRecipes = [];
+  List<CategoryModel> _categories = [];
+  List<CategoryModel>? get categories => _categories;
+
   String _searchQuery = '';
   String _selectedCategory = 'All';
   bool _isAscending = true;
 
-  // List<Recipe> get recipes => _filteredRecipes;
-  // List<Recipe> get favorites => _favoritesBox.values
-  //     .map((e) => Recipe.fromJson(e))
-  //     .toList();
-
-  // Future<void> loadRecipes() async {
-  //   try {
-  //     _recipes = await _recipeService.fetchRecipes();
-  //     _applyFilters();
-  //   } catch (e) {
-  //     rethrow;
-  //   }
-  // }
+  Future<void> loadCategories() async {
+    try {
+      log("Sdfsdfd");
+      var response = (await _recipeService.getCategories()).map((e) => CategoryModel.fromJson(e)).toList();
+      log("Sdfsdfd");
+      log(response.toString());
+      setCategories(response);
+      notifyListeners();
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   // void _applyFilters() {
   //   _filteredRecipes = _recipes.where((recipe) {
@@ -55,10 +60,10 @@ class RecipeProvider with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  // void setSearchQuery(String query) {
-  //   _searchQuery = query;
-  //   _applyFilters();
-  // }
+  void setCategories(List<CategoryModel> query) {
+    _categories = query;
+    notifyListeners();
+  }
   //
   // void setCategory(String category) {
   //   _selectedCategory = category;

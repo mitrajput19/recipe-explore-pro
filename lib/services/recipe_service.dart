@@ -1,16 +1,9 @@
-// lib/services/recipe_service.dart
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
-import 'package:hive/hive.dart';
-import 'package:http/http.dart' as http;
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:recipe_explorer_pro/models/category_model.dart';
+import 'dart:developer';
 
+import 'package:http/http.dart' as http;
 
 class RecipeService {
-  static const String _baseUrl = 'www.themealdb.com';
-  static const String _apiKey = '1';
-
   // Future<List<Recipe>> fetchRecipes({int page = 1, int limit = 20}) async {
   //   final connectivityResult = await Connectivity().checkConnectivity();
   //   final isOnline = connectivityResult != ConnectivityResult.none;
@@ -114,21 +107,20 @@ class RecipeService {
   //   ];
   // }
 
-
   Future<List<dynamic>> getCategories() async {
     try {
       final response = await http.get(
-        Uri.parse("www.themealdb.com/api/json/v1/1/categories.php"),
+        Uri.parse("https://themealdb.com/api/json/v1/1/categories.php"),
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return  (data['categories'] as List<dynamic>).map((e) => CategoryModel.fromJson(e)).toList();
-
-
+        log(data.toString());
+        return (data['categories'] as List<dynamic>);
       }
       return [];
     } catch (e) {
+      log(e.toString());
       return [];
     }
   }

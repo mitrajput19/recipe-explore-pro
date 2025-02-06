@@ -1,7 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart' as firebaseAuth;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../provider/auth_provider.dart';
+import '../../provider/recipe_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,22 +21,22 @@ class _HomeScreenState extends State<HomeScreen> {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-
+      context.read<RecipeProvider>().loadCategories();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-
+    final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
-        leading: Icon(Icons.person),
+        leading: const Icon(Icons.person),
         title: const Text('Recipe Explorer Pro'),
         actions: [
           GestureDetector(
             onTap: _logout,
-            child: Icon(Icons.logout),
+            child: const Icon(Icons.logout),
           )
         ],
       ),
@@ -45,34 +46,49 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Hello ${authProvider.currentUser?.email ?? ""}",textAlign: TextAlign.left,),
-            SizedBox(
+            Text(
+              "Hello ${authProvider.currentUser?.email ?? ""}",
+              textAlign: TextAlign.left,
+            ),
+            const SizedBox(
               height: 20,
             ),
             RichText(
-              text: TextSpan(
+              text: const TextSpan(
                 text: "Make your own food,",
-                style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black),
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.black),
                 children: [
                   TextSpan(
                     text: "\nStay at ",
-                    style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black),
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.black),
                   ),
-                  TextSpan(
-                      text: "home",
-                      style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.orange))
+                  TextSpan(text: "home", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.orange))
                 ],
               ),
             ),
+            SizedBox(
+              height: 50,
+              child: FutureBuilder(
+                future: recipeProvider.loadCategories(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: (recipeProvider.categories ?? []).length,
+                    itemBuilder: (context, index) {
+                      final category = recipeProvider.categories?[index];
+                      return Image.network(
+                        category?.strCategoryThumb ?? "",
+                        fit: BoxFit.contain,
+                      );
+                    },
+                  );
+                },
+              ),
+            )
             // const RecipeSearchBar(),
             // Expanded(
             //   child: FutureBuilder(
