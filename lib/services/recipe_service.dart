@@ -132,7 +132,7 @@ class RecipeService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
-        return (data['categories'] as List<dynamic>);
+        return (data['meals'] as List<dynamic>);
       }
       return [];
     } catch (e) {

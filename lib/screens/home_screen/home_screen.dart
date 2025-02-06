@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        leading: Icon(
+        leading: const Icon(
           Icons.person,
         ),
         title: Text(
@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           GestureDetector(
             onTap: _logout,
-            child: Icon(Icons.logout),
+            child: const Icon(Icons.logout),
           )
         ],
       ),
@@ -59,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 GestureDetector(
                   onTap: _toggleTheme,
-                  child: Text("Toggle Theme"),
+                  child: const Text("Toggle Theme"),
                 ),
               ],
             ),
@@ -75,11 +75,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     text: "\nStay at ",
                     style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: context.read<ThemeProvider>().isDarkMode ? Colors.white : Colors.black),
                   ),
-                  TextSpan(text: "home", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.orange))
+                  const TextSpan(text: "home", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.orange))
                 ],
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             SizedBox(
@@ -113,22 +113,38 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             // const RecipeSearchBar(),
-            // Expanded(
-            //   child: FutureBuilder(
-            //     future: recipeProvider.loadRecipes(),
-            //     builder: (context, snapshot) {
-            //       if (snapshot.connectionState == ConnectionState.waiting) {
-            //         return const Center(child: CircularProgressIndicator());
-            //       }
-            //       return ListView.builder(
-            //         itemCount: recipeProvider.recipes.length,
-            //         itemBuilder: (ctx, i) => RecipeCard(
-            //           recipe: recipeProvider.recipes[i],
-            //         ),
-            //       );
-            //     },
-            //   ),
-            // ),
+            Expanded(
+              child: FutureBuilder(
+                future: recipeProvider.loadMeals(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: (recipeProvider.meals ?? []).length,
+                    itemBuilder: (ctx, i) {
+                      final recipe = recipeProvider.meals?[i];
+                      return GestureDetector(
+                        onTap: () {},
+                        child: Column(
+                          children: [
+                            CachedNetworkImage(
+                              imageUrl: recipe?.strMealThumb ?? "",
+                              fit: BoxFit.contain,
+                            ),
+                            Text(
+                              recipe?.strMeal ?? "",
+                              style: Theme.of(context).textTheme.labelLarge!.copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
