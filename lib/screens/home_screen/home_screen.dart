@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -14,15 +15,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   _logout() async {
     await context.read<AuthProvider>().signOut();
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context.read<RecipeProvider>().loadCategories();
-    });
   }
 
   @override
@@ -67,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             SizedBox(
-              height: 50,
+              height: 60,
               child: FutureBuilder(
                 future: recipeProvider.loadCategories(),
                 builder: (context, snapshot) {
@@ -80,15 +72,22 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemCount: (recipeProvider.categories ?? []).length,
                     itemBuilder: (context, index) {
                       final category = recipeProvider.categories?[index];
-                      return Image.network(
-                        category?.strCategoryThumb ?? "",
-                        fit: BoxFit.contain,
+                      return Column(
+                        children: [
+                          CachedNetworkImage(
+                            height: 40,
+                            fit: BoxFit.fitHeight,
+                            imageUrl: category?.strCategoryThumb ?? "",
+                          ),
+                          Text(category?.strCategory ?? "")
+                        ],
                       );
                     },
                   );
                 },
               ),
-            )
+            ),
+
             // const RecipeSearchBar(),
             // Expanded(
             //   child: FutureBuilder(
@@ -109,13 +108,15 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () => Navigator.push(
-      //     context,
-      //     MaterialPageRoute(builder: (_) => const AddRecipeScreen()),
-      //   ),
-      //   child: const Icon(Icons.add),
-      // ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          //   Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (_) => const AddRecipeScreen()),
+          // );
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
