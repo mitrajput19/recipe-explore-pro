@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:recipe_explorer_pro/provider/theme_provider.dart';
+import 'package:recipe_explorer_pro/screens/favourite_screen.dart';
 
 import '../../provider/auth_provider.dart';
 import '../../provider/recipe_provider.dart';
@@ -45,9 +46,29 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FavouriteScreen(),
+                ),
+              );
+            },
+            child: const Icon(
+              Icons.favorite,
+              color: Colors.red,
+            ),
+          ),
+          SizedBox(
+            width: 10,
+          ),
+          GestureDetector(
             onTap: _logout,
             child: const Icon(Icons.logout),
-          )
+          ),
+          SizedBox(
+            width: 10,
+          ),
         ],
       ),
       body: Padding(

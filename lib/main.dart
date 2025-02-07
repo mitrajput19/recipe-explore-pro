@@ -10,6 +10,7 @@ import 'package:recipe_explorer_pro/screens/auth_screen.dart';
 import 'package:recipe_explorer_pro/services/notification_service.dart';
 
 import 'firebase_options.dart';
+import 'models/recipe.dart';
 import 'provider/auth_provider.dart';
 import 'screens/home_screen/home_screen.dart';
 
@@ -21,8 +22,9 @@ Future<void> main() async {
   await NotificationService.initialize();
   log((await NotificationService.getFCMToken()) ?? "", name: "FCM Token");
   await Hive.initFlutter();
-  await Hive.openBox('mealsCache');
-  await Hive.openBox('favorites');
+  Hive.registerAdapter(RecipeAdapter());
+  await Hive.openBox('meals');
+  await Hive.openBox<Recipe>('favorites');
   await Hive.openBox('settings');
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => AuthProvider()),
@@ -48,12 +50,6 @@ class MyApp extends StatelessWidget {
             return authProvider.isAuthenticated ? const HomeScreen() : const AuthScreen();
           },
         ),
-        // routes: {
-        //   '/login': (context) => const AuthScreen(),
-        //   '/home': (context) => const HomeScreen(),
-        //   '/recipe-details': (context) => const RecipeDetailScreen()
-        //   // '/add-recipe': (context) => const AddRecipeScreen(),
-        // },
       );
     });
   }

@@ -1,11 +1,14 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../../models/recipe.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
-  final MealModel? recipe;
+  final Recipe? recipe;
   const RecipeDetailScreen({super.key, this.recipe});
 
   @override
@@ -14,30 +17,74 @@ class RecipeDetailScreen extends StatefulWidget {
 
 class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   YoutubePlayerController? _controller;
+  bool favourite = false;
+  var favouriteBox = Hive.box<Recipe>('favorites');
+
+  bool isRecipeInBox(Recipe recipe) {
+    for (var i = 0; i < favouriteBox.length; i++) {
+      Recipe? existingRecipe = favouriteBox.getAt(i);
+      if (existingRecipe?.idMeal == recipe.idMeal) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void deleteRecipe(Recipe recipe) {
+    for (var i = 0; i < favouriteBox.length; i++) {
+      Recipe? existingRecipe = favouriteBox.getAt(i);
+      if (existingRecipe?.idMeal == recipe.idMeal) {
+        favouriteBox.deleteAt(i);
+        log("deleted successfully");
+      }
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    // final recipe = ModalRoute.of(context)!.settings.arguments as MealModel;
-    // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-
     if (widget.recipe?.strYoutube != null) {
       _controller = YoutubePlayerController(
         initialVideoId: YoutubePlayer.convertUrlToId(widget.recipe?.strYoutube ?? "") ?? '',
         flags: const YoutubePlayerFlags(autoPlay: false),
       );
     }
-    // });
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      favourite = isRecipeInBox(widget.recipe!);
+      setState(() {});
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // final recipe = ModalRoute.of(context)!.settings.arguments as MealModel;
-
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
-      appBar: AppBar(backgroundColor: Colors.transparent, title: Text(widget.recipe?.strMeal ?? "")),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        title: Text(
+          widget.recipe?.strMeal ?? "",
+        ),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              if (favourite) {
+                deleteRecipe(widget.recipe!);
+                setState(() {
+                  favourite = !favourite;
+                });
+              } else {
+                await favouriteBox.add(widget.recipe!);
+                setState(() {
+                  favourite = !favourite;
+                });
+              }
+            },
+            icon: Icon(favourite ? Icons.favorite : Icons.favorite_border),
+            color: Colors.red,
+          )
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [

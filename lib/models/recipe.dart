@@ -1,21 +1,37 @@
-import 'dart:convert';
+import 'package:hive/hive.dart';
 
-List<MealModel> mealModelFromJson(String str) => List<MealModel>.from(json.decode(str).map((x) => MealModel.fromJson(x)));
+part 'recipe.g.dart';
 
-String mealModelToJson(List<MealModel> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
-
-class MealModel {
+@HiveType(typeId: 0)
+class Recipe {
+  @HiveField(0)
   String? idMeal;
+
+  @HiveField(1)
   String? strMeal;
+
+  @HiveField(2)
   String? strCategory;
+
+  @HiveField(3)
   String? strArea;
+
+  @HiveField(4)
   String? strInstructions;
+
+  @HiveField(5)
   String? strMealThumb;
+
+  @HiveField(6)
   String? strYoutube;
+
+  @HiveField(7)
   List<String?> ingredients;
+
+  @HiveField(8)
   List<String?> measures;
 
-  MealModel({
+  Recipe({
     this.idMeal,
     this.strMeal,
     this.strCategory,
@@ -27,7 +43,7 @@ class MealModel {
     required this.measures,
   });
 
-  factory MealModel.fromJson(Map<String, dynamic> json) => MealModel(
+  factory Recipe.fromJson(Map<String, dynamic> json) => Recipe(
         idMeal: json["idMeal"],
         strMeal: json["strMeal"],
         strCategory: json["strCategory"],
@@ -35,8 +51,8 @@ class MealModel {
         strInstructions: json["strInstructions"],
         strMealThumb: json["strMealThumb"],
         strYoutube: json["strYoutube"],
-        ingredients: List.generate(20, (index) => json["strIngredient\${index + 1}"] as String?),
-        measures: List.generate(20, (index) => json["strMeasure\${index + 1}"] as String?),
+        ingredients: List.generate(20, (index) => json["strIngredient${index + 1}"] as String?),
+        measures: List.generate(20, (index) => json["strMeasure${index + 1}"] as String?),
       );
 
   Map<String, dynamic> toJson() => {
@@ -47,7 +63,7 @@ class MealModel {
         "strInstructions": strInstructions,
         "strMealThumb": strMealThumb,
         "strYoutube": strYoutube,
-        for (int i = 0; i < ingredients.length; i++) "strIngredient\${i + 1}": ingredients[i],
-        for (int i = 0; i < measures.length; i++) "strMeasure\${i + 1}": measures[i],
+        for (int i = 0; i < ingredients.length; i++) "strIngredient${i + 1}": ingredients[i],
+        for (int i = 0; i < measures.length; i++) "strMeasure${i + 1}": measures[i],
       };
 }
