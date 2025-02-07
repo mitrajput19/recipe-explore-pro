@@ -41,7 +41,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
               ),
             )
           : ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               shrinkWrap: true,
               itemCount: favouriteBox.length,
               itemBuilder: (ctx, i) {
