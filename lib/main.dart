@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -17,6 +19,7 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await NotificationService.initialize();
+  log((await NotificationService.getFCMToken()) ?? "", name: "FCM Token");
   await Hive.initFlutter();
   await Hive.openBox('mealsCache');
   await Hive.openBox('favorites');

@@ -18,6 +18,7 @@ class RecipeProvider with ChangeNotifier {
   String _searchQuery = '';
   String _selectedCategory = 'All';
   bool _isAscending = true;
+  bool? get isAscending => _isAscending;
 
   Future<void> loadCategories() async {
     try {
@@ -28,10 +29,11 @@ class RecipeProvider with ChangeNotifier {
     }
   }
 
-  Future<void> loadMeals({String? category,String? search}) async {
+  Future<void> loadMeals({String? category, String? search}) async {
     try {
-      var response = (await _recipeService.getMeals(category: category,search: search)).map((e) => MealModel.fromJson(e)).toList();
+      var response = (await _recipeService.getMeals(category: category, search: search)).map((e) => MealModel.fromJson(e)).toList();
       setMeal(response);
+      toggleSortOrder();
     } catch (e) {
       rethrow;
     }
@@ -46,15 +48,15 @@ class RecipeProvider with ChangeNotifier {
     _meals = query;
     notifyListeners();
   }
-  //
-  // void setCategory(String category) {
-  //   _selectedCategory = category;
-  //   _applyFilters();
-  // }
-  //
-  // void toggleSortOrder() {
-  //   _isAscending = !_isAscending;
-  //   _sortRecipes();
-  //   notifyListeners();
-  // }
+
+  void sortMeals() {
+    _meals = List<MealModel>.from(_meals)..sort((a, b) => _isAscending ? (a.strMeal ?? "").compareTo(b.strMeal ?? "") : (b.strMeal ?? "").compareTo(a.strMeal ?? ""));
+    notifyListeners();
+  }
+
+  void toggleSortOrder() {
+    _isAscending = !_isAscending;
+    sortMeals();
+    notifyListeners();
+  }
 }
