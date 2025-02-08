@@ -26,7 +26,6 @@ class ThemeProvider with ChangeNotifier {
         fontWeight: FontWeight.bold,
       ),
     ),
-    // Add other light theme customizations
   );
 
   static final ThemeData darkTheme = ThemeData(
@@ -40,7 +39,6 @@ class ThemeProvider with ChangeNotifier {
         fontWeight: FontWeight.bold,
       ),
     ),
-    // Add other dark theme customizations
   );
 
   Future<void> _loadTheme() async {

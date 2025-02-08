@@ -12,11 +12,7 @@ class NotificationService {
 
   static Future<void> initialize() async {
     await Firebase.initializeApp();
-
-    // Initialize time zones
     tz.initializeTimeZones();
-
-    // Request permissions
     NotificationSettings settings = await _firebaseMessaging.requestPermission(
       alert: true,
       badge: true,
@@ -26,27 +22,20 @@ class NotificationService {
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       print('User granted permission');
 
-      // Initialize local notifications
       const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
 
-      final InitializationSettings initializationSettings = InitializationSettings(
+      const InitializationSettings initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid,
         iOS: DarwinInitializationSettings(),
       );
 
       await _flutterLocalNotificationsPlugin.initialize(
         initializationSettings,
-        onDidReceiveNotificationResponse: (details) {
-          // Handle notification tap
-        },
-      );
 
-      // Set up FCM listeners
+      );
       FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
       FirebaseMessaging.onMessageOpenedApp.listen(_handleBackgroundMessage);
       FirebaseMessaging.onBackgroundMessage(_handleBackgroundMessage);
-
-      // Schedule daily notifications
       await _scheduleDailyNotification();
     }
   }
@@ -98,14 +87,14 @@ class NotificationService {
   }
 
   static Future<void> _showNotification(RemoteMessage message) async {
-    final AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
+    const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
       'recipe_channel',
       'Recipe Notifications',
       importance: Importance.max,
       priority: Priority.high,
     );
 
-    final NotificationDetails platformChannelSpecifics = NotificationDetails(
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: androidPlatformChannelSpecifics,
       iOS: DarwinNotificationDetails(),
     );

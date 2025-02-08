@@ -258,10 +258,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          //   Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (_) => const AddRecipeScreen()),
-          // );
+
         },
         child: const Icon(Icons.add),
       ),
