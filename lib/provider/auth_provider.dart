@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_services.dart';
@@ -14,6 +16,7 @@ class AuthProvider with ChangeNotifier {
   bool get isAuthenticated => _user != null;
 
   AuthProvider() {
+
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       _user = user;
       notifyListeners();
@@ -37,6 +40,8 @@ class AuthProvider with ChangeNotifier {
     try {
       _setLoading(true);
       _user = await _authService.signInWithEmail(email, password);
+      log(_user!.toString(),name:"uid");
+      log((await _user!.getIdToken()).toString(),name:"uid");
       _clearError();
     } catch (e) {
       _setError(e.toString());

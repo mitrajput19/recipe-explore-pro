@@ -21,6 +21,7 @@ Future<void> main() async {
   );
   await NotificationService.initialize();
   log((await NotificationService.getFCMToken()) ?? "", name: "FCM Token");
+
   await Hive.initFlutter();
   Hive.registerAdapter(RecipeAdapter());
   await Hive.openBox('meals');
